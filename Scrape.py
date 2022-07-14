@@ -7,29 +7,28 @@ URL = "https://en.wikipedia.org/wiki/List_of_brightest_stars_and_other_record_st
 r = requests.get(URL)
 
 def scrape():
-    titles = ["Name", "Distance", "Mass", "Radius"]
+    titles = ["Proper Name", "Bayer designation", "Distance", "Spectral Class", "Mass", "Radius", "Luminosity"]
     stars = []
 
     r = requests.get(url = URL)
     
-    for i in range(1, 97):
-        soup = BeautifulSoup(r.content, "html.parser")
-        ults = soup.find_all("tr")[1]
+    soup = BeautifulSoup(r.content, "html.parser")
+    ults = soup.find_all("tr")[1].contents[1]
 
-        for ult in ults :
-            td_tags = soup.find_all("td")
-            temp = []
+    for ult in ults :
+        td_tags = soup.find_all("td")
+        temp = []
 
-            for index, td_tag in enumerate(td_tags):
-                if index == 1:
-                    temp.append(td_tag.find_all("a")[0].contents[0])
-                else:
-                    try:
-                        temp.append(td_tag.contents[0])
-                    except:
-                        temp.append("")
-                        
-                stars.append(temp)
+        for index, td_tag in enumerate(td_tags):
+            if index == 1:
+                temp.append(td_tag.find_all("a")[0].contents[0])
+            else:
+                try:
+                    temp.append(td_tag.contents[0])
+                except:
+                    temp.append("")
+                    
+            stars.append(temp)
     
     with open("StarResearch.csv", "w", encoding="utf-8") as f:
         writer = csv.writer(f)
