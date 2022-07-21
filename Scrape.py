@@ -2,38 +2,48 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import csv
+import pandas as pd
 
 URL = "https://en.wikipedia.org/wiki/List_of_brightest_stars_and_other_record_stars"
-r = requests.get(URL)
 
-def scrape():
-    titles = ["Proper Name", "Bayer designation", "Distance", "Spectral Class", "Mass", "Radius", "Luminosity"]
-    stars = []
 
-    r = requests.get(url = URL)
-    
-    soup = BeautifulSoup(r.content, "html.parser")
-    ults = soup.find_all("tr")[1].contents[1]
+titles = ["Proper Name", "Bayer designation", "Distance", "Spectral Class", "Mass", "Radius", "Luminosity"]
+stars = []
 
-    for ult in ults :
-        td_tags = soup.find_all("td")
-        temp = []
+r = requests.get(url = URL)
 
-        for index, td_tag in enumerate(td_tags):
-            if index == 1:
-                temp.append(td_tag.find_all("a")[0].contents[0])
-            else:
-                try:
-                    temp.append(td_tag.contents[0])
-                except:
-                    temp.append("")
-                    
-            stars.append(temp)
-    
-    with open("StarResearch.csv", "w", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(titles)
-        writer.writerows(stars)
+soup = BeautifulSoup(r.content, "html.parser")
+#print(soup)
+table = soup.find('table')
+#print(table)
 
-scrape()
+tr_tags = table.find_all('tr')
+#print(tr_tags)
+temp = []
 
+for tr in tr_tags:
+    td = tr.find_all('td')
+    row = []
+    for i in td:
+        row.append(i.text.rstrip())
+    temp.append(row)
+print(temp)
+
+Star_names = []
+Distance =[]
+Mass = []
+Radius =[]
+Lum = []
+
+for i in range(1,len(temp)):
+    Star_names.append(temp[i][1])
+    Distance.append(temp[i][3])
+    Mass.append(temp[i][5])
+    Radius.append(temp[i][6])
+    Lum.append(temp[i][7])
+
+
+df2 = pd.DataFrame(list(zip(Star_names,Distance,Mass,Radius,Lum)),columns=['Star_name','Distance','Mass','Radius','Luminosity'])
+print(df2)
+
+df2.to_csv('bright_stars.csv')
